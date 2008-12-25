@@ -2,7 +2,7 @@
 #Under BSD License
 #See clock.c for the license detail.
 
-SRC = tetris.c
+SRC = frame.c shapes.c tetris.c
 CC = cc
 NCURSESFLAG = -lncurses
 BIN = tty-tetris
