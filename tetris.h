@@ -74,6 +74,8 @@ enum { Black, Blue, Red, Magenta, White, Green, Cyan, Yellow, Border, Score, Col
 /* Prototypes */
 
 /* util.c */
+void clear_term(void);
+void set_cursor(Bool);
 int getch(void);
 void printxy(int, int, char*);
 void set_color(int);

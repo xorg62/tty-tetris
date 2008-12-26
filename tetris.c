@@ -38,7 +38,9 @@ void
 init(void)
 {
 
-     printf("\033[2J");
+     /* Clean term */
+     clear_term();
+     set_cursor(False);
 
      /* Make rand() really random :) */
      srand(getpid());

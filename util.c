@@ -34,6 +34,22 @@
 #include <string.h>
 #include "tetris.h"
 
+void
+clear_term(void)
+{
+     puts("\033[2J");
+
+     return;
+}
+
+void
+set_cursor(Bool b)
+{
+     printf("\e[?25%c", ((b) ? 'h' : 'l'));
+
+     return;
+}
+
 
 /* getchar() but non-block */
 int
