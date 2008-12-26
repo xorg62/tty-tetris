@@ -2,12 +2,11 @@
 #Under BSD License
 #See clock.c for the license detail.
 
-SRC = frame.c shapes.c tetris.c
+SRC = util.c frame.c shapes.c tetris.c
 CC = cc
-NCURSESFLAG = -lncurses
 BIN = tty-tetris
 INSTALLPATH = /usr/local/bin/
-CFLAGS = -Wall ${NCURSESFLAG}
+CFLAGS = -Wall
 
 
 tty-tetris : ${SRC}

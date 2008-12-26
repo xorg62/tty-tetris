@@ -68,6 +68,8 @@ const int shapes[7][4][4][2] =
           {{1,1},{1,2},{2,0},{2,1}},
           {{0,1},{1,1},{1,2},{2,2}},
           {{1,1},{1,2},{2,0},{2,1}},
+
+
           {{0,1},{1,1},{1,2},{2,2}}
      },
      /* Z */
@@ -123,7 +125,7 @@ shape_unset(void)
 void
 shape_new(void)
 {
-     /* Draw the previous shape for it rest there */
+     /* Draw the previous shape for it stay there */
      shape_set();
      /* Check if there is plain line */
      check_plain_line();
@@ -133,10 +135,10 @@ shape_new(void)
      /* Set the current.num the current.next */
      current.num = current.next;
      /* Set the current.next for the next time */
-     RAND(current.next, 0, 6);
+     current.next = RAND(0, 6);
      /* Refresh nextbox */
      frame_nextbox_refresh();
-     usleep(5000);
+     sleep(0.5);
 
      return;
 }
@@ -162,39 +164,29 @@ shape_go_down(void)
 }
 
 void
-shape_position_switch(Bool b)
+shape_set_position(int p)
 {
-     int old_pos = current.pos;
+     int old = current.pos;
 
      shape_unset();
 
-     if(b)
-          current.pos = ((current.pos < 3) ? current.pos + 1 : 0);
-     else
-          current.pos = ((current.pos > 0) ? current.pos - 1 : 3);
+     current.pos = p ;
 
      if(check_possible_pos(current.x, current.y))
-          current.pos = old_pos;
+          current.pos = old;
 
      return;
 }
 
-void
-shape_move_left(void)
-{
-     shape_unset();
-     if(!check_possible_pos(current.x, current.y - EXP_FACT))
-        current.y -= EXP_FACT;
-
-     return;
-}
 
 void
-shape_move_right(void)
+shape_move(int n)
 {
+
      shape_unset();
-     if(!check_possible_pos(current.x, current.y + EXP_FACT))
-          current.y += EXP_FACT;
+
+     if(!check_possible_pos(current.x, current.y + n))
+          current.y += n;
 
      return;
 }
@@ -207,7 +199,7 @@ shape_drop(void)
           shape_unset();
           ++current.x;
      }
-     score += 10;
+     score += FRAMEH - current.x;
 
      return;
 }

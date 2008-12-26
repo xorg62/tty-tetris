@@ -31,52 +31,14 @@
  */
 
 #include "tetris.h"
-
-void init(void);
-void init_frame(void);
-void do_fall_shape(void);
-int check_possible_pos(int, int);
-void arrange_score(int);
-void check_plain_line(void);
-void get_key_event(void);
-void shape_position_switch(Bool);
-void move_left();
-void move_right();
-void set_shape(Bool);
-void draw_frame(void);
-
+#include "config.h"
 
 /* Functions */
 void
 init(void)
 {
-     int bg;
 
-     /* Init term with ncurses */
-     initscr();
-     noecho();
-     keypad(stdscr, True);
-     curs_set(False);
-
-     /* Init colors */
-     start_color();
-
-     /* Init background color (term color, else black color). */
-     bg = (use_default_colors() == OK) ? -1 : COLOR_BLACK;
-     init_pair(Black,   bg, COLOR_BLACK);
-     init_pair(White,   bg, COLOR_WHITE);
-     init_pair(Blue,    bg, COLOR_BLUE);
-     init_pair(Red,     bg, COLOR_RED);
-     init_pair(Green,   bg, COLOR_GREEN);
-     init_pair(Yellow,  bg, COLOR_YELLOW);
-     init_pair(Magenta, bg, COLOR_MAGENTA);
-     init_pair(Cyan,    bg, COLOR_CYAN);
-     init_pair(Border,  bg, COLOR_WHITE);
-     init_pair(Score,   COLOR_WHITE, bg);
-
-     /* Refresh term screen and clean it */
-     refresh();
-     clear();
+     printf("\033[2J");
 
      /* Make rand() really random :) */
      srand(getpid());
@@ -86,25 +48,42 @@ init(void)
      running = True;
 
      /* Score */
-     mvprintw(FRAMEH_NB + 2, FRAMEW + 3, "Score:");
-     mvprintw(FRAMEH_NB + 3, FRAMEW + 3, "Lines:");
+     printxy(FRAMEH_NB + 2, FRAMEW + 3, "Score:");
+     printxy(FRAMEH_NB + 3, FRAMEW + 3, "Lines:");
      DRAW_SCORE();
 
      return;
 }
 
+Bool
+kbhit(int t)
+{
+     struct timeval tv = {0, t};
+     fd_set read_fd;
+
+     FD_ZERO(&read_fd);
+     FD_SET(0, &read_fd);
+
+     if(select(1, &read_fd, NULL, NULL, &tv) == -1)
+          return False;
+
+     if(FD_ISSET(0, &read_fd))
+          return True;
+
+     return False;
+}
+
 void
 get_key_event(void)
 {
-     halfdelay(3);
 
      switch(getch())
      {
-     case KEY_LEFT:  shape_move_left();            break;
-     case KEY_RIGHT: shape_move_right();           break;
-     case KEY_UP:    shape_position_switch(True);  break;
-     case KEY_DOWN:  shape_position_switch(False); break;
-     case KEY_SPACE: shape_drop();                 break;
+     case KEY_MOVE_LEFT:             shape_move(-EXP_FACT);     break;
+     case KEY_MOVE_RIGHT:            shape_move(EXP_FACT);      break;
+     case KEY_CHANGE_POSITION_NEXT:  shape_set_position(N_POS); break;
+     case KEY_CHANGE_POSITION_PREV:  shape_set_position(P_POS); break;
+     case KEY_DROP_SHAPE:            shape_drop();              break;
      }
 
      return;
@@ -177,8 +156,9 @@ main(int argc, char **argv)
      frame_nextbox_init();
 
      current.y = FRAMEW / 2 - 1;
-     RAND(current.num, 0, 6);
-     RAND(current.next, 0, 6);
+     current.num = RAND(0, 6);
+     current.next = RAND(0, 6);
+
      frame_nextbox_refresh();
 
      while(running)
@@ -187,10 +167,7 @@ main(int argc, char **argv)
           shape_set();
           frame_refresh();
           shape_go_down();
-
      }
-
-     endwin();
 
      return 0;
 }

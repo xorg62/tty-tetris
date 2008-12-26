@@ -1,5 +1,5 @@
 /*
- *      tetris.h
+ *      util.c
  *      Copyright © 2008 Martin Duquesnoy <xorg62@gmail.com>
  *      All rights reserved.
  *
@@ -30,80 +30,61 @@
  *      OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Libs */
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
+#include <termio.h>
+#include <string.h>
+#include "tetris.h"
 
-/* Expension factor of shapes */
-#define EXP_FACT 2
 
-/* Frame dimension */
-#define FRAMEW 23
-#define FRAMEH 23
-#define FRAMEW_NB 14
-#define FRAMEH_NB 6
-
-/* Generate Random number */
-#define RAND(m, M) ((rand() % (M - m + 1)) + m)
-
-#define N_POS ((current.pos < 3) ? current.pos + 1 : 0)
-#define P_POS ((current.pos > 0) ? current.pos - 1 : 3)
-
-/* Draw the score.. */
-#define DRAW_SCORE() set_color(Score);                             \
-     printf("\033[%d;%dH %d",FRAMEH_NB + 3, FRAMEW + 10, score);   \
-     printf("\033[%d;%dH %d",FRAMEH_NB + 4, FRAMEW + 10, lines);   \
-     set_color(0);
-
-/* Bool type */
-typedef enum { False, True } Bool;
-
-/* Shape structure */
-struct shape_t
+/* getchar() but non-block */
+int
+getch(void)
 {
-     int num;
-     int next;
-     int pos;
-     int x, y;
-} current;
+     int ret;
+     struct termios term, back;
 
-/* Color enum */
-enum { Black, Blue, Red, Magenta, White, Green, Cyan, Yellow, Border, Score, ColLast };
+     tcgetattr (0, &term);
+     memcpy (&back, &term, sizeof(term));
 
-/* Prototypes */
+     term.c_lflag &= ~(ICANON|ECHO);
+     term.c_cc[VTIME] = 4;
+     term.c_cc[VMIN]  = 0;
 
-/* util.c */
-int getch(void);
-void printxy(int, int, char*);
-void set_color(int);
+     tcsetattr(0, TCSANOW, &term);
+     ret = getchar();
+     tcsetattr(0, TCSANOW, &back);
 
-/* frame.c */
-void frame_init(void);
-void frame_nextbox_init(void);
-void frame_refresh(void);
-void frame_nextbox_refresh(void);
+     return ret;
+}
 
-/* shapes.c */
-void shape_set(void);
-void shape_unset(void);
-void shape_new(void);
-void shape_go_down(void);
-void shape_set_position(int);
-void shape_move(int);
-void shape_drop(void);
+void
+printxy(int x, int y, char *str)
+{
+     printf("\033[%d;%dH%s", ++x, ++y, str);
 
-/* tetris.c */
-void check_plain_line(void);
-int check_possible_pos(int, int);
+     return;
+}
 
-/* Variables */
+void
+set_color(int color)
+{
+     int bg = 0, fg = 0;
 
-/* Frame data */
-const int shapes[7][4][4][2];
-int frame[FRAMEH + 1][FRAMEW + 1];
-int frame_nextbox[FRAMEH][FRAMEW];
-int score;
-int lines;
-Bool running;
+     switch(color)
+     {
+     default:
+     case Black:   bg = 0;  break;
+     case Blue:    bg = 44; break;
+     case Red:     bg = 41; break;
+     case Magenta: bg = 45; break;
+     case White:   bg = 47; break;
+     case Green:   bg = 42; break;
+     case Cyan:    bg = 46; break;
+     case Yellow:  bg = 43; break;
+     case Border:  bg = 47; break;
+     case Score:   fg = 37; bg = 49; break;
+     }
 
+     printf("\033[%d;%dm", fg, bg);
+
+     return;
+}

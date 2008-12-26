@@ -81,12 +81,10 @@ frame_refresh(void)
      for(i = 0; i < FRAMEH + 1; ++i)
           for(j = 0; j < FRAMEW + 1; ++j)
           {
-               attron(COLOR_PAIR(frame[i][j]));
-               mvaddch(i, j, ' ');
-               attroff(COLOR_PAIR(frame[i][j]));
+               set_color(frame[i][j]);
+               printxy(i, j, " ");
+               set_color(0);
           }
-
-     refresh();
 
      return;
 }
@@ -111,9 +109,9 @@ frame_nextbox_refresh(void)
      for(i = 0; i < FRAMEH_NB + 1; ++i)
           for(j = 0; j < FRAMEW_NB + 1; ++j)
           {
-               attron(COLOR_PAIR(frame_nextbox[i][j]));
-               mvaddch(i, j + FRAMEW + 3, ' ');
-               attroff(COLOR_PAIR(frame_nextbox[i][j]));
+               set_color(frame_nextbox[i][j]);
+               printxy(i, j + FRAMEW + 3, " ");
+               set_color(0);
           }
 
      return;
