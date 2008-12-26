@@ -1,6 +1,6 @@
 #TTY-Tetris MakeFile
 #Under BSD License
-#See clock.c for the license detail.
+#See the top of *.c files for the license detail.
 
 SRC = util.c frame.c shapes.c tetris.c
 CC = cc
