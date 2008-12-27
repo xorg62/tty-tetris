@@ -1,5 +1,5 @@
 /* Configuration of tty-tetris
- * Need to re-compile for set the change.
+ * Need to re-compile to set the change.
  */
 
 /* Move left the shape */
@@ -14,3 +14,6 @@
 
 /* ' ' for space key */
 #define KEY_DROP_SHAPE ' '
+
+/* Timing in milisecond */
+#define TIMING 400000

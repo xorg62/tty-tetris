@@ -70,6 +70,8 @@ frame_nextbox_init(void)
      for(i = 0; i < FRAMEW_NB + 1; ++i)
           frame_nextbox[0][i] = frame_nextbox[FRAMEH_NB][i] = Border;
 
+     frame_nextbox_refresh();
+
      return;
 }
 

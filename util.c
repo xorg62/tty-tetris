@@ -31,8 +31,11 @@
  */
 
 #include <termios.h>
-#include <string.h>
+#include <sys/time.h>
+#include <signal.h>
+
 #include "tetris.h"
+#include "config.h"
 
 void
 clear_term(void)
@@ -50,23 +53,21 @@ set_cursor(Bool b)
      return;
 }
 
-
 /* getchar() but non-block */
 int
 getch(void)
 {
      int ret;
+
      struct termios term, back;
 
-     tcgetattr (0, &term);
-     memcpy (&back, &term, sizeof(term));
+     tcgetattr(STDIN_FILENO, &term);
+     tcgetattr(STDIN_FILENO, &back);
 
      term.c_lflag &= ~(ICANON|ECHO);
-     term.c_cc[VTIME] = 4;
-     term.c_cc[VMIN]  = 0;
 
      tcsetattr(0, TCSANOW, &term);
-     ret = getchar();
+     ret = fgetc(stdin);
      tcsetattr(0, TCSANOW, &back);
 
      return ret;
@@ -101,6 +102,25 @@ set_color(int color)
      }
 
      printf("\033[%d;%dm", fg, bg);
+
+     return;
+}
+
+void
+sig_handler(int sig)
+{
+     switch(sig)
+     {
+     case SIGTERM:
+     case SIGINT:
+     case SIGSEGV:
+          running = False;
+          break;
+     case SIGALRM:
+          tv.it_value.tv_usec -= tv.it_value.tv_usec / 300;
+          setitimer(0, &tv, NULL);
+          break;
+     }
 
      return;
 }

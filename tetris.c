@@ -30,6 +30,8 @@
  *      OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <signal.h>
+
 #include "tetris.h"
 #include "config.h"
 
@@ -37,6 +39,7 @@
 void
 init(void)
 {
+     struct sigaction siga;
 
      /* Clean term */
      clear_term();
@@ -48,44 +51,47 @@ init(void)
      /* Init variables */
      score = lines = 0;
      running = True;
+     current.y = FRAMEW / 2 - 1;
+     current.num = RAND(0, 6);
+     current.next = RAND(0, 6);
 
      /* Score */
      printxy(FRAMEH_NB + 2, FRAMEW + 3, "Score:");
      printxy(FRAMEH_NB + 3, FRAMEW + 3, "Lines:");
      DRAW_SCORE();
 
+     /* Init signal */
+     sigemptyset( &siga.sa_mask );
+     siga.sa_flags = 0;
+     siga.sa_handler = sig_handler;
+     sigaction(SIGALRM, &siga, NULL);
+     sigaction(SIGTERM, &siga, NULL);
+     sigaction(SIGINT, &siga, NULL);
+     sigaction(SIGSEGV, &siga, NULL);
+
+     /* Init timer */
+     tv.it_value.tv_sec = 0;
+     tv.it_value.tv_usec = TIMING;
+     sig_handler(SIGALRM);
+
      return;
-}
-
-Bool
-kbhit(int t)
-{
-     struct timeval tv = {0, t};
-     fd_set read_fd;
-
-     FD_ZERO(&read_fd);
-     FD_SET(0, &read_fd);
-
-     if(select(1, &read_fd, NULL, NULL, &tv) == -1)
-          return False;
-
-     if(FD_ISSET(0, &read_fd))
-          return True;
-
-     return False;
 }
 
 void
 get_key_event(void)
 {
+     int c = getch();
 
-     switch(getch())
+     if(c > 0)
+          --current.x;
+
+     switch(c)
      {
-     case KEY_MOVE_LEFT:             shape_move(-EXP_FACT);     break;
-     case KEY_MOVE_RIGHT:            shape_move(EXP_FACT);      break;
-     case KEY_CHANGE_POSITION_NEXT:  shape_set_position(N_POS); break;
-     case KEY_CHANGE_POSITION_PREV:  shape_set_position(P_POS); break;
-     case KEY_DROP_SHAPE:            shape_drop();              break;
+     case KEY_MOVE_LEFT:            shape_move(-EXP_FACT);     break;
+     case KEY_MOVE_RIGHT:           shape_move(EXP_FACT);      break;
+     case KEY_CHANGE_POSITION_NEXT: shape_set_position(N_POS); break;
+     case KEY_CHANGE_POSITION_PREV: shape_set_position(P_POS); break;
+     case KEY_DROP_SHAPE:           shape_drop();              break;
      }
 
      return;
@@ -94,7 +100,6 @@ get_key_event(void)
 void
 arrange_score(int l)
 {
-
      /* Standard score count */
      switch(l)
      {
@@ -149,19 +154,22 @@ check_possible_pos(int x, int y)
      return c;
 }
 
+void
+quit(void)
+{
+     frame_refresh(); /* Redraw a last time the frame */
+     set_cursor(True);
+     printf("\nBye! Your score: %d\n", score);
+
+     return;
+}
+
 int
 main(int argc, char **argv)
 {
-
      init();
      frame_init();
-     frame_nextbox_init();
-
-     current.y = FRAMEW / 2 - 1;
-     current.num = RAND(0, 6);
-     current.next = RAND(0, 6);
-
-     frame_nextbox_refresh();
+     frame_nextbox_init();;
 
      while(running)
      {
@@ -170,6 +178,8 @@ main(int argc, char **argv)
           frame_refresh();
           shape_go_down();
      }
+
+     quit();
 
      return 0;
 }

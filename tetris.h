@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 /* Expension factor of shapes */
 #define EXP_FACT 2
@@ -79,6 +80,7 @@ void set_cursor(Bool);
 int getch(void);
 void printxy(int, int, char*);
 void set_color(int);
+void sig_handler(int);
 
 /* frame.c */
 void frame_init(void);
@@ -108,4 +110,5 @@ int frame_nextbox[FRAMEH][FRAMEW];
 int score;
 int lines;
 Bool running;
+struct itimerval tv;
 

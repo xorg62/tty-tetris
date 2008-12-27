@@ -125,6 +125,8 @@ shape_unset(void)
 void
 shape_new(void)
 {
+     int i;
+
      /* Draw the previous shape for it stay there */
      shape_set();
      /* Check if there is plain line */
@@ -138,7 +140,10 @@ shape_new(void)
      current.next = RAND(0, 6);
      /* Refresh nextbox */
      frame_nextbox_refresh();
-     sleep(0.5);
+
+     for(i = 2; i < FRAMEW- 1; ++i)
+          frame[1][i] = 0;
+
 
      return;
 }
