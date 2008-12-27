@@ -68,8 +68,6 @@ const int shapes[7][4][4][2] =
           {{1,1},{1,2},{2,0},{2,1}},
           {{0,1},{1,1},{1,2},{2,2}},
           {{1,1},{1,2},{2,0},{2,1}},
-
-
           {{0,1},{1,1},{1,2},{2,2}}
      },
      /* Z */
@@ -132,8 +130,8 @@ shape_new(void)
      /* Check if there is plain line */
      check_plain_line();
      /* Set the new shape property */
-     current.x = 0;
-     current.y = FRAMEW / 2 - 1;
+     current.x = 1;
+     current.y = (FRAMEW / 2) - 1;
      /* Set the current.num the current.next */
      current.num = current.next;
      /* Set the current.next for the next time */

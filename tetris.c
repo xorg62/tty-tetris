@@ -30,8 +30,6 @@
  *      OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <signal.h>
-
 #include "tetris.h"
 #include "config.h"
 
@@ -51,13 +49,13 @@ init(void)
      /* Init variables */
      score = lines = 0;
      running = True;
-     current.y = FRAMEW / 2 - 1;
+     current.y = (FRAMEW / 2) - 1;
      current.num = RAND(0, 6);
      current.next = RAND(0, 6);
 
      /* Score */
-     printxy(FRAMEH_NB + 2, FRAMEW + 3, "Score:");
-     printxy(FRAMEH_NB + 3, FRAMEW + 3, "Lines:");
+     printxy(0, FRAMEH_NB + 2, FRAMEW + 3, "Score:");
+     printxy(0, FRAMEH_NB + 3, FRAMEW + 3, "Lines:");
      DRAW_SCORE();
 
      /* Init signal */
@@ -66,11 +64,10 @@ init(void)
      siga.sa_handler = sig_handler;
      sigaction(SIGALRM, &siga, NULL);
      sigaction(SIGTERM, &siga, NULL);
-     sigaction(SIGINT, &siga, NULL);
+     sigaction(SIGINT,  &siga, NULL);
      sigaction(SIGSEGV, &siga, NULL);
 
      /* Init timer */
-     tv.it_value.tv_sec = 0;
      tv.it_value.tv_usec = TIMING;
      sig_handler(SIGALRM);
 
@@ -87,11 +84,14 @@ get_key_event(void)
 
      switch(c)
      {
-     case KEY_MOVE_LEFT:            shape_move(-EXP_FACT);     break;
-     case KEY_MOVE_RIGHT:           shape_move(EXP_FACT);      break;
-     case KEY_CHANGE_POSITION_NEXT: shape_set_position(N_POS); break;
-     case KEY_CHANGE_POSITION_PREV: shape_set_position(P_POS); break;
-     case KEY_DROP_SHAPE:           shape_drop();              break;
+     case KEY_MOVE_LEFT:            shape_move(-EXP_FACT);               break;
+     case KEY_MOVE_RIGHT:           shape_move(EXP_FACT);                break;
+     case KEY_CHANGE_POSITION_NEXT: shape_set_position(N_POS);           break;
+     case KEY_CHANGE_POSITION_PREV: shape_set_position(P_POS);           break;
+     case KEY_DROP_SHAPE:           shape_drop();                        break;
+     case KEY_SPEED:                ++current.x; ++score; DRAW_SCORE();  break;
+     case KEY_PAUSE:                while(getch() != KEY_PAUSE);         break;
+     case KEY_QUIT:                 running = False;                     break;
      }
 
      return;

@@ -34,14 +34,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <signal.h>
 #include <sys/time.h>
 
 /* Expension factor of shapes */
 #define EXP_FACT 2
 
 /* Frame dimension */
-#define FRAMEW 23
-#define FRAMEH 23
+#define FRAMEW (int)(10*2.3)
+#define FRAMEH (int)(10*2.3)
 #define FRAMEW_NB 14
 #define FRAMEH_NB 6
 
@@ -53,8 +54,8 @@
 
 /* Draw the score.. */
 #define DRAW_SCORE() set_color(Score);                             \
-     printf("\033[%d;%dH %d",FRAMEH_NB + 3, FRAMEW + 10, score);   \
-     printf("\033[%d;%dH %d",FRAMEH_NB + 4, FRAMEW + 10, lines);   \
+     printf("\033[%d;%dH %d", FRAMEH_NB + 3, FRAMEW + 10, score);   \
+     printf("\033[%d;%dH %d", FRAMEH_NB + 4, FRAMEW + 10, lines);   \
      set_color(0);
 
 /* Bool type */
@@ -78,7 +79,7 @@ enum { Black, Blue, Red, Magenta, White, Green, Cyan, Yellow, Border, Score, Col
 void clear_term(void);
 void set_cursor(Bool);
 int getch(void);
-void printxy(int, int, char*);
+void printxy(int, int, int, char*);
 void set_color(int);
 void sig_handler(int);
 
@@ -98,6 +99,7 @@ void shape_move(int);
 void shape_drop(void);
 
 /* tetris.c */
+void arrange_score(int l);
 void check_plain_line(void);
 int check_possible_pos(int, int);
 

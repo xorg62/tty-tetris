@@ -15,5 +15,10 @@
 /* ' ' for space key */
 #define KEY_DROP_SHAPE ' '
 
+/* Other key */
+#define KEY_PAUSE 'p'
+#define KEY_QUIT  'q'
+#define KEY_SPEED 's'
+
 /* Timing in milisecond */
 #define TIMING 400000

@@ -32,7 +32,6 @@
 
 #include <termios.h>
 #include <sys/time.h>
-#include <signal.h>
 
 #include "tetris.h"
 #include "config.h"
@@ -74,14 +73,6 @@ getch(void)
 }
 
 void
-printxy(int x, int y, char *str)
-{
-     printf("\033[%d;%dH%s", ++x, ++y, str);
-
-     return;
-}
-
-void
 set_color(int color)
 {
      int bg = 0, fg = 0;
@@ -107,6 +98,16 @@ set_color(int color)
 }
 
 void
+printxy(int color, int x, int y, char *str)
+{
+     set_color(color);
+     printf("\033[%d;%dH%s", ++x, ++y, str);
+     set_color(0);
+
+     return;
+}
+
+void
 sig_handler(int sig)
 {
      switch(sig)
@@ -117,7 +118,7 @@ sig_handler(int sig)
           running = False;
           break;
      case SIGALRM:
-          tv.it_value.tv_usec -= tv.it_value.tv_usec / 300;
+          tv.it_value.tv_usec -= tv.it_value.tv_usec / 3000;
           setitimer(0, &tv, NULL);
           break;
      }

@@ -82,11 +82,7 @@ frame_refresh(void)
 
      for(i = 0; i < FRAMEH + 1; ++i)
           for(j = 0; j < FRAMEW + 1; ++j)
-          {
-               set_color(frame[i][j]);
-               printxy(i, j, " ");
-               set_color(0);
-          }
+               printxy(frame[i][j], i, j, " ");
 
      return;
 }
@@ -110,11 +106,7 @@ frame_nextbox_refresh(void)
      /* Draw the frame */
      for(i = 0; i < FRAMEH_NB + 1; ++i)
           for(j = 0; j < FRAMEW_NB + 1; ++j)
-          {
-               set_color(frame_nextbox[i][j]);
-               printxy(i, j + FRAMEW + 3, " ");
-               set_color(0);
-          }
+               printxy(frame_nextbox[i][j], i, j + FRAMEW + 3, " ");
 
      return;
 }
