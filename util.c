@@ -30,7 +30,6 @@
  *      OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <termios.h>
 #include <sys/time.h>
 
 #include "tetris.h"
@@ -39,7 +38,7 @@
 void
 clear_term(void)
 {
-     puts("\033[2J");
+     puts("\e[2J");
 
      return;
 }
@@ -50,26 +49,6 @@ set_cursor(Bool b)
      printf("\e[?25%c", ((b) ? 'h' : 'l'));
 
      return;
-}
-
-/* getchar() but non-block */
-int
-getch(void)
-{
-     int ret;
-
-     struct termios term, back;
-
-     tcgetattr(STDIN_FILENO, &term);
-     tcgetattr(STDIN_FILENO, &back);
-
-     term.c_lflag &= ~(ICANON|ECHO);
-
-     tcsetattr(0, TCSANOW, &term);
-     ret = fgetc(stdin);
-     tcsetattr(0, TCSANOW, &back);
-
-     return ret;
 }
 
 void
@@ -92,7 +71,7 @@ set_color(int color)
      case Score:   fg = 37; bg = 49; break;
      }
 
-     printf("\033[%d;%dm", fg, bg);
+     printf("\e[%d;%dm", fg, bg);
 
      return;
 }
@@ -101,10 +80,16 @@ void
 printxy(int color, int x, int y, char *str)
 {
      set_color(color);
-     printf("\033[%d;%dH%s", ++x, ++y, str);
+     printf("\e[%d;%dH%s", ++x, ++y, str);
      set_color(0);
 
      return;
+}
+
+int
+nrand(int min, int max)
+{
+     return (rand() % (max - min + 1)) + min;
 }
 
 void

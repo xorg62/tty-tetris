@@ -2,15 +2,13 @@
  * Need to re-compile to set the change.
  */
 
-/* Move left the shape */
-#define KEY_MOVE_LEFT  'j'
-
-/* Move right the shape */
-#define KEY_MOVE_RIGHT 'l'
+/* Move the shape */
+#define KEY_MOVE_LEFT  'D'
+#define KEY_MOVE_RIGHT 'C'
 
 /* Change the shape position */
-#define KEY_CHANGE_POSITION_NEXT 'i'
-#define KEY_CHANGE_POSITION_PREV 'k'
+#define KEY_CHANGE_POSITION_NEXT 'A'
+#define KEY_CHANGE_POSITION_PREV 'B'
 
 /* ' ' for space key */
 #define KEY_DROP_SHAPE ' '
@@ -21,4 +19,4 @@
 #define KEY_SPEED 's'
 
 /* Timing in milisecond */
-#define TIMING 400000
+#define TIMING 300000

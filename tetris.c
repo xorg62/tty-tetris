@@ -38,6 +38,7 @@ void
 init(void)
 {
      struct sigaction siga;
+     struct termios term;
 
      /* Clean term */
      clear_term();
@@ -50,8 +51,8 @@ init(void)
      score = lines = 0;
      running = True;
      current.y = (FRAMEW / 2) - 1;
-     current.num = RAND(0, 6);
-     current.next = RAND(0, 6);
+     current.num = nrand(0, 6);
+     current.next = nrand(0, 6);
 
      /* Score */
      printxy(0, FRAMEH_NB + 2, FRAMEW + 3, "Score:");
@@ -59,7 +60,7 @@ init(void)
      DRAW_SCORE();
 
      /* Init signal */
-     sigemptyset( &siga.sa_mask );
+     sigemptyset(&siga.sa_mask);
      siga.sa_flags = 0;
      siga.sa_handler = sig_handler;
      sigaction(SIGALRM, &siga, NULL);
@@ -71,27 +72,33 @@ init(void)
      tv.it_value.tv_usec = TIMING;
      sig_handler(SIGALRM);
 
+     /* Init terminal (for non blocking & noecho getchar(); */
+     tcgetattr(STDIN_FILENO, &term);
+     tcgetattr(STDIN_FILENO, &back_attr);
+     term.c_lflag &= ~(ICANON|ECHO);
+     tcsetattr(0, TCSANOW, &term);
+
      return;
 }
 
 void
 get_key_event(void)
 {
-     int c = getch();
+     int c = getchar();
 
      if(c > 0)
           --current.x;
 
      switch(c)
      {
-     case KEY_MOVE_LEFT:            shape_move(-EXP_FACT);               break;
-     case KEY_MOVE_RIGHT:           shape_move(EXP_FACT);                break;
-     case KEY_CHANGE_POSITION_NEXT: shape_set_position(N_POS);           break;
-     case KEY_CHANGE_POSITION_PREV: shape_set_position(P_POS);           break;
-     case KEY_DROP_SHAPE:           shape_drop();                        break;
-     case KEY_SPEED:                ++current.x; ++score; DRAW_SCORE();  break;
-     case KEY_PAUSE:                while(getch() != KEY_PAUSE);         break;
-     case KEY_QUIT:                 running = False;                     break;
+     case KEY_MOVE_LEFT:            shape_move(-EXP_FACT);              break;
+     case KEY_MOVE_RIGHT:           shape_move(EXP_FACT);               break;
+     case KEY_CHANGE_POSITION_NEXT: shape_set_position(N_POS);          break;
+     case KEY_CHANGE_POSITION_PREV: shape_set_position(P_POS);          break;
+     case KEY_DROP_SHAPE:           shape_drop();                       break;
+     case KEY_SPEED:                ++current.x; ++score; DRAW_SCORE(); break;
+     case KEY_PAUSE:                while(getchar() != KEY_PAUSE);      break;
+     case KEY_QUIT:                 running = False;                    break;
      }
 
      return;
@@ -136,6 +143,7 @@ check_plain_line(void)
           c = 0;
      }
      arrange_score(nl);
+     frame_refresh();
 
      return;
 }
@@ -159,6 +167,7 @@ quit(void)
 {
      frame_refresh(); /* Redraw a last time the frame */
      set_cursor(True);
+     tcsetattr(0, TCSANOW, &back_attr);
      printf("\nBye! Your score: %d\n", score);
 
      return;
@@ -170,6 +179,8 @@ main(int argc, char **argv)
      init();
      frame_init();
      frame_nextbox_init();;
+
+     current.last_move = False;
 
      while(running)
      {

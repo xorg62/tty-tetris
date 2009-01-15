@@ -127,21 +127,19 @@ shape_new(void)
 
      /* Draw the previous shape for it stay there */
      shape_set();
-     /* Check if there is plain line */
      check_plain_line();
+
      /* Set the new shape property */
-     current.x = 1;
-     current.y = (FRAMEW / 2) - 1;
-     /* Set the current.num the current.next */
      current.num = current.next;
-     /* Set the current.next for the next time */
-     current.next = RAND(0, 6);
-     /* Refresh nextbox */
+     current.x = 1;
+     current.y = (FRAMEW / 2) - 1;;
+     current.next = nrand(0, 6);
+
      frame_nextbox_refresh();
 
-     for(i = 2; i < FRAMEW- 1; ++i)
-          frame[1][i] = 0;
-
+     if(current.x > 1)
+          for(i = 2; i < FRAMEW - 1; ++i)
+               frame[1][i] = 0;
 
      return;
 }
@@ -149,19 +147,26 @@ shape_new(void)
 void
 shape_go_down(void)
 {
-     shape_unset();
 
-     /* Lose conditions */
-     if(current.x == 0
-        && check_possible_pos(current.x + 1, current.y))
-          running = False;
+     shape_unset();
 
      /* Fall the shape else; collision with the ground or another shape
       * then stop it and create another */
      if(!check_possible_pos(current.x + 1, current.y))
-          current.x += 1;
+          ++current.x;
      else
-          shape_new();
+          if(current.x > 2)
+               shape_new();
+          else
+          {
+               shape_new();
+               frame_refresh();
+               sleep(2);
+               running = False;
+          }
+
+
+
 
      return;
 }

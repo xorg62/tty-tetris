@@ -32,6 +32,14 @@
 
 #include "tetris.h"
 
+
+/* Shape attribute for draw it in the next box (center etc..)
+ * [0]: +x
+ * [1]: +y
+ * [2]: What shape position choose for a perfect position in the box
+ */
+const int sattr[7][3] = {{0,2}, {-1,0}, {-1,1,1}, {-1,1}, {-1,1}, {0,1}, {0,1}};
+
 void
 frame_init(void)
 {
@@ -50,6 +58,8 @@ frame_init(void)
           frame[i][FRAMEW] = Border;
           frame[i][FRAMEW - 1] = Border;
      }
+
+     frame_refresh();
 
      return;
 }
@@ -82,8 +92,7 @@ frame_refresh(void)
 
      for(i = 0; i < FRAMEH + 1; ++i)
           for(j = 0; j < FRAMEW + 1; ++j)
-               printxy(frame[i][j], i, j, " ");
-
+                    printxy(frame[i][j], i, j, " ");
      return;
 }
 
@@ -93,15 +102,17 @@ frame_nextbox_refresh(void)
      int i, j;
 
      /* Clean frame_nextbox[][] */
-     for(i = 1; i < FRAMEH_NB - 1; ++i)
+     for(i = 1; i < FRAMEH_NB; ++i)
           for(j = 2; j < FRAMEW_NB - 1; ++j)
                frame_nextbox[i][j] = 0;
 
      /* Set the shape in the frame */
      for(i = 0; i < 4; ++i)
           for(j = 0; j < EXP_FACT; ++j)
-               frame_nextbox[2 + shapes[current.next][0][i][0]]
-                    [4 + shapes[current.next][0][i][1] * EXP_FACT + j] = current.next + 1;
+               frame_nextbox
+                    [2 + shapes[current.next][sattr[current.next][2]][i][0] + sattr[current.next][0]]
+                    [4 + shapes[current.next][sattr[current.next][2]][i][1] * EXP_FACT + j + sattr[current.next][1]]
+                    = current.next + 1;
 
      /* Draw the frame */
      for(i = 0; i < FRAMEH_NB + 1; ++i)
@@ -110,4 +121,5 @@ frame_nextbox_refresh(void)
 
      return;
 }
+
 

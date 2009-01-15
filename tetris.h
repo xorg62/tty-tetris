@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
+#include <termios.h>
 #include <sys/time.h>
 
 /* Expension factor of shapes */
@@ -42,13 +43,11 @@
 
 /* Frame dimension */
 #define FRAMEW (int)(10*2.3)
-#define FRAMEH (int)(10*2.3)
-#define FRAMEW_NB 14
-#define FRAMEH_NB 6
+#define FRAMEH (int)(9*2.3)
+#define FRAMEW_NB 15
+#define FRAMEH_NB 5
 
-/* Generate Random number */
-#define RAND(m, M) ((rand() % (M - m + 1)) + m)
-
+/* Shapes position */
 #define N_POS ((current.pos < 3) ? current.pos + 1 : 0)
 #define P_POS ((current.pos > 0) ? current.pos - 1 : 3)
 
@@ -62,13 +61,14 @@
 typedef enum { False, True } Bool;
 
 /* Shape structure */
-struct shape_t
+typedef struct
 {
      int num;
      int next;
      int pos;
      int x, y;
-} current;
+     Bool last_move;
+} shape_t;
 
 /* Color enum */
 enum { Black, Blue, Red, Magenta, White, Green, Cyan, Yellow, Border, Score, ColLast };
@@ -78,9 +78,9 @@ enum { Black, Blue, Red, Magenta, White, Green, Cyan, Yellow, Border, Score, Col
 /* util.c */
 void clear_term(void);
 void set_cursor(Bool);
-int getch(void);
 void printxy(int, int, int, char*);
 void set_color(int);
+int nrand(int, int);
 void sig_handler(int);
 
 /* frame.c */
@@ -102,15 +102,17 @@ void shape_drop(void);
 void arrange_score(int l);
 void check_plain_line(void);
 int check_possible_pos(int, int);
-
+void get_key_event(void);
 /* Variables */
 
-/* Frame data */
 const int shapes[7][4][4][2];
+struct itimerval tv;
+struct termios back_attr;
+shape_t current;
 int frame[FRAMEH + 1][FRAMEW + 1];
-int frame_nextbox[FRAMEH][FRAMEW];
+int frame_nextbox[FRAMEH_NB][FRAMEW_NB];
 int score;
 int lines;
 Bool running;
-struct itimerval tv;
+
 
